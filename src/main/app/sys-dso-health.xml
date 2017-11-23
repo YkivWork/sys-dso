@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <flow name="dsoHealthCheckFlow">
+        <logger level="INFO" doc:name="Logger" message="flow = start = dsoHealthCheckFlow"/>
+        <flow-ref name="dsoAuthFlow" doc:name="dsoAuthFlow"/>
+        <logger message="Received DSO Auth" level="DEBUG" doc:name="Received DSO Auth"/>
+        <set-variable variableName="currentDate" value="#[server.dateTime.plusDays(-1).format(&quot;MM-dd-yyyy&quot;)]" doc:name="Variable"/>
+        <http:request config-ref="DSO_Request_Configuration" path="${hc.dso.api.project.path}" method="GET" doc:name="Dso_GetProject">
+            <http:request-builder>
+                <http:query-param paramName="billingDay" value="#[flowVars.currentDate]"/>
+                <http:header headerName="Authorization" value="Bearer #[flowVars.dsoToken]"/>
+            </http:request-builder>
+        </http:request>
+        <byte-array-to-object-transformer doc:name="Byte Array to Object"/>
+        <logger message="#[payload]" level="DEBUG" doc:name="Log Response"/>
+        <choice doc:name="Choice">
+            <when expression="#[message.exception != null]">
+                <set-payload value="{&quot;Status&quot;: &quot;Failure&quot;}" doc:name="SET_Error_Payload"/>
+                <set-property propertyName="http.status" value="500" doc:name="SET_Error_Status"/>
+            </when>
+            <otherwise>
+                <set-payload value="{&quot;Status&quot;: &quot;OK&quot;}" doc:name="SET_Success_Payload"/>
+                <set-property propertyName="http.status" value="200" doc:name="SET_Success_Status"/>
+            </otherwise>
+        </choice>
+        <logger message="flow = end = dsoHealthCheckFlow" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+    <http:listener-config name="sys-dso-httpListenerConfig" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <apikit:config name="sys-dso-config" raml="sys-dso.raml" consoleEnabled="false" doc:name="Router"/>
+    <flow name="sys-dso-main">
+        <http:listener config-ref="api-HTTP_Listener_Configuration" path="/api/*" doc:name="HTTP"/>
+        <apikit:router config-ref="sys-dso-config" doc:name="APIkit Router"/>
+
+    </flow>
+    <flow name="sys-dso-console">
+        <http:listener config-ref="api-HTTP_Listener_Configuration" path="/console/*" doc:name="HTTP"/>
+        <apikit:console config-ref="sys-dso-config" doc:name="APIkit Console"/>
+    </flow>
+    <flow name="get:/dso/auth:sys-dso-config">
+        <flow-ref name="dsoAuthFlow" doc:name="dsoAuthFlow"/>
+
+    </flow>
+    <flow name="get:/dso/daily-usage:sys-dso-config">
+        <flow-ref name="dsoDailyUsageFlow" doc:name="dsoDailyUsageFlow"/>
+
+    </flow>
+    <flow name="get:/dso/healthcheck:sys-dso-config">
+        <flow-ref name="dsoHealthCheckFlow" doc:name="dsoHealthCheckFlow"/>
+
+    </flow>
+    <flow name="get:/dso/monthly-usage:sys-dso-config">
+        <flow-ref name="dsoMonthlyUsageFlow" doc:name="dsoMonthlyUsageFlow"/>
+
+    </flow>
+    <flow name="post:/dso/create:sys-dso-config">
+        <flow-ref name="dsoCreateFlow" doc:name="dsoCreateFlow"/>
+
+    </flow>
+    <flow name="post:/dso/update:sys-dso-config">
+        <flow-ref name="dsoUpdateFlow" doc:name="dsoUpdateFlow"/>
+
+    </flow>
+
+</mule>

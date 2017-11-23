@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:mock="http://www.mulesoft.org/schema/mule/mock" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd">
+    <munit:config name="munit" doc:name="MUnit configuration"/>
+    <spring:beans>
+        <spring:import resource="classpath:sys-dso-impl.xml"/>
+        <spring:import resource="classpath:globals.xml"/>
+        <spring:import resource="classpath:error-handling.xml"/>
+        <spring:import resource="classpath:sys-dso-health.xml"/>
+        <spring:import resource="classpath:sys-dso-usage.xml"/>
+        <spring:import resource="classpath:sys-dso-auth.xml"/>
+    </spring:beans>
+    <munit:test name="sys-dso-impl-test-suite-dsoAuthFlowTest" description="Test">
+        <mock:when messageProcessor="http:request" doc:name="DSO Token Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="config-ref" whereValue="DSO_Auth_Request_Configuration"/>
+            </mock:with-attributes>
+            <mock:then-return payload="{&quot;access_token&quot;: &quot;eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.eyJzdWIiOiJzdmNfc2ZfaWFtX2xkYXBAYWRtaW5zeXMubXJsbC5jb20iLCJBVCI6InRlc3QiLCJVc2VyTmFtZSI6InN2Y19zZl9pYW1fbGRhcEBhZG1pbnN5cy5tcmxsLmNvbSIsIkZpcnN0TmFtZSI6IlRlc3QgVXNlciIsImdyb3VwIjoic2FsZXNmb3JjZV9zZXJ2aWNlIiwiZXhwIjoxNDkzMjY1NDQ5LCJzY29wZSI6W10sImNsaWVudF9pZCI6ImlhbV9hcGlfc2YiLCJpc3MiOiJpYW0ubWVycmlsbGNvcnAuY29tIiwiYXVkIjoiamF2ZWxpbm1jLmNvbSJ9.LhuIEpUU5C2kUKkMhb0H6XokKmCSgKKK8oILSSTYo_I&quot;,&quot;token_type&quot;: &quot;Bearer&quot;,&quot;expires_in&quot;: 36119}" mimeType="application/json"/>
+        </mock:when>
+        <flow-ref name="dsoAuthFlow" doc:name="dsoAuthFlow"/>
+        <munit:assert-on-equals message="DSO Auth token retrieval failed" expectedValue="#['eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.eyJzdWIiOiJzdmNfc2ZfaWFtX2xkYXBAYWRtaW5zeXMubXJsbC5jb20iLCJBVCI6InRlc3QiLCJVc2VyTmFtZSI6InN2Y19zZl9pYW1fbGRhcEBhZG1pbnN5cy5tcmxsLmNvbSIsIkZpcnN0TmFtZSI6IlRlc3QgVXNlciIsImdyb3VwIjoic2FsZXNmb3JjZV9zZXJ2aWNlIiwiZXhwIjoxNDkzMjY1NDQ5LCJzY29wZSI6W10sImNsaWVudF9pZCI6ImlhbV9hcGlfc2YiLCJpc3MiOiJpYW0ubWVycmlsbGNvcnAuY29tIiwiYXVkIjoiamF2ZWxpbm1jLmNvbSJ9.LhuIEpUU5C2kUKkMhb0H6XokKmCSgKKK8oILSSTYo_I']" actualValue="#[flowVars.dsoToken]" doc:name="Assert Equals"/>
+    </munit:test>
+    <munit:test name="sys-dso-impl-test-suite-dsoDailyUsageFlowTest" description="Test">
+        <mock:when messageProcessor="http:request" doc:name="DSO Token Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="config-ref" whereValue="DSO_Auth_Request_Configuration"/>
+            </mock:with-attributes>
+            <mock:then-return payload="{&quot;access_token&quot;: &quot;eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.eyJzdWIiOiJzdmNfc2ZfaWFtX2xkYXBAYWRtaW5zeXMubXJsbC5jb20iLCJBVCI6InRlc3QiLCJVc2VyTmFtZSI6InN2Y19zZl9pYW1fbGRhcEBhZG1pbnN5cy5tcmxsLmNvbSIsIkZpcnN0TmFtZSI6IlRlc3QgVXNlciIsImdyb3VwIjoic2FsZXNmb3JjZV9zZXJ2aWNlIiwiZXhwIjoxNDkzMjY1NDQ5LCJzY29wZSI6W10sImNsaWVudF9pZCI6ImlhbV9hcGlfc2YiLCJpc3MiOiJpYW0ubWVycmlsbGNvcnAuY29tIiwiYXVkIjoiamF2ZWxpbm1jLmNvbSJ9.LhuIEpUU5C2kUKkMhb0H6XokKmCSgKKK8oILSSTYo_I&quot;,&quot;token_type&quot;: &quot;Bearer&quot;,&quot;expires_in&quot;: 36119}" mimeType="application/json"/>
+        </mock:when>
+        <mock:when messageProcessor="http:request" doc:name="DSO Get Usage Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="config-ref" whereValue="DSO_Request_Configuration"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('dso_usage.json').asString()]" mimeType="application/json"/>
+        </mock:when>
+        <flow-ref name="dsoDailyUsageFlow" doc:name="dsoDailyUsageFlow"/>
+        <munit:assert-not-null message="Connection to DSO Failed" doc:name="Assert Not Null Payload"/>
+    </munit:test>
+    <munit:test name="sys-dso-impl-test-suite-dsoMonthlyUsageFlowTest" description="Test">
+        <mock:when messageProcessor="http:request" doc:name="DSO Token Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="config-ref" whereValue="DSO_Auth_Request_Configuration"/>
+            </mock:with-attributes>
+            <mock:then-return payload="{&quot;access_token&quot;: &quot;eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.eyJzdWIiOiJzdmNfc2ZfaWFtX2xkYXBAYWRtaW5zeXMubXJsbC5jb20iLCJBVCI6InRlc3QiLCJVc2VyTmFtZSI6InN2Y19zZl9pYW1fbGRhcEBhZG1pbnN5cy5tcmxsLmNvbSIsIkZpcnN0TmFtZSI6IlRlc3QgVXNlciIsImdyb3VwIjoic2FsZXNmb3JjZV9zZXJ2aWNlIiwiZXhwIjoxNDkzMjY1NDQ5LCJzY29wZSI6W10sImNsaWVudF9pZCI6ImlhbV9hcGlfc2YiLCJpc3MiOiJpYW0ubWVycmlsbGNvcnAuY29tIiwiYXVkIjoiamF2ZWxpbm1jLmNvbSJ9.LhuIEpUU5C2kUKkMhb0H6XokKmCSgKKK8oILSSTYo_I&quot;,&quot;token_type&quot;: &quot;Bearer&quot;,&quot;expires_in&quot;: 36119}" mimeType="application/json"/>
+        </mock:when>
+        <mock:when messageProcessor="http:request" doc:name="DSO Get Usage Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="config-ref" whereValue="DSO_Request_Configuration"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('dso_usage.json').asString()]" mimeType="application/json"/>
+        </mock:when>
+        <flow-ref name="dsoMonthlyUsageFlow" doc:name="dsoMonthlyUsageFlow"/>
+        <munit:assert-not-null message="Connection to DSO Failed" doc:name="Assert Not Null Payload"/>
+    </munit:test>
+    <munit:test name="sys-dso-impl-test-suite-dsoHealthCheckFlowTest" description="Test">
+        <mock:when messageProcessor="http:request" doc:name="DSO Token Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="config-ref" whereValue="DSO_Auth_Request_Configuration"/>
+            </mock:with-attributes>
+            <mock:then-return payload="{&quot;access_token&quot;: &quot;eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.eyJzdWIiOiJzdmNfc2ZfaWFtX2xkYXBAYWRtaW5zeXMubXJsbC5jb20iLCJBVCI6InRlc3QiLCJVc2VyTmFtZSI6InN2Y19zZl9pYW1fbGRhcEBhZG1pbnN5cy5tcmxsLmNvbSIsIkZpcnN0TmFtZSI6IlRlc3QgVXNlciIsImdyb3VwIjoic2FsZXNmb3JjZV9zZXJ2aWNlIiwiZXhwIjoxNDkzMjY1NDQ5LCJzY29wZSI6W10sImNsaWVudF9pZCI6ImlhbV9hcGlfc2YiLCJpc3MiOiJpYW0ubWVycmlsbGNvcnAuY29tIiwiYXVkIjoiamF2ZWxpbm1jLmNvbSJ9.LhuIEpUU5C2kUKkMhb0H6XokKmCSgKKK8oILSSTYo_I&quot;,&quot;token_type&quot;: &quot;Bearer&quot;,&quot;expires_in&quot;: 36119}" mimeType="application/json"/>
+        </mock:when>
+        <mock:when messageProcessor="http:request" doc:name="DSO Get Project Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="config-ref" whereValue="DSO_Request_Configuration"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('dso_proj.json').asString()]" mimeType="application/json"/>
+        </mock:when>
+        <flow-ref name="dsoHealthCheckFlow" doc:name="dsoHealthCheckFlow"/>
+        <munit:assert-on-equals message="Connection to DSO Failed" expectedValue="{&quot;Status&quot;: &quot;OK&quot;}" actualValue="#[payload]" doc:name="Assert Equals"/>
+    </munit:test>
+    <munit:test name="sys-dso-impl-test-suite-dsoCreateFlowTest" description="Test">
+        <mock:when messageProcessor="http:request" doc:name="DSO Token Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="config-ref" whereValue="DSO_Auth_Request_Configuration"/>
+            </mock:with-attributes>
+            <mock:then-return payload="{&quot;access_token&quot;: &quot;eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.eyJzdWIiOiJzdmNfc2ZfaWFtX2xkYXBAYWRtaW5zeXMubXJsbC5jb20iLCJBVCI6InRlc3QiLCJVc2VyTmFtZSI6InN2Y19zZl9pYW1fbGRhcEBhZG1pbnN5cy5tcmxsLmNvbSIsIkZpcnN0TmFtZSI6IlRlc3QgVXNlciIsImdyb3VwIjoic2FsZXNmb3JjZV9zZXJ2aWNlIiwiZXhwIjoxNDkzMjY1NDQ5LCJzY29wZSI6W10sImNsaWVudF9pZCI6ImlhbV9hcGlfc2YiLCJpc3MiOiJpYW0ubWVycmlsbGNvcnAuY29tIiwiYXVkIjoiamF2ZWxpbm1jLmNvbSJ9.LhuIEpUU5C2kUKkMhb0H6XokKmCSgKKK8oILSSTYo_I&quot;,&quot;token_type&quot;: &quot;Bearer&quot;,&quot;expires_in&quot;: 36119}" mimeType="application/json"/>
+        </mock:when>
+        <mock:when messageProcessor="mule:sub-flow" doc:name="Mock parseAriaCurrentEntitlementAndStateForMPISub_Flow">
+            <mock:with-attributes>
+                <mock:with-attribute name="name" whereValue="#[matchContains('parseAriaCurrentEntitlementAndStateForMPISub_Flow')]"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('aria_State.json').asString()]" mimeType="application/java"/>
+        </mock:when>
+        <mock:when messageProcessor="http:request" doc:name="DSO Create Project Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="config-ref" whereValue="DSO_Request_Configuration"/>
+            </mock:with-attributes>
+            <mock:then-return payload="{ &quot;id&quot; : &quot;58e521834417550013dcd940&quot; }" mimeType="application/json"/>
+        </mock:when>
+        <mock:when messageProcessor=".*:.*" doc:name="Mock Salesforce">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="Salesforce"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('sfdc_response.json').asString()]" mimeType="application/json"/>
+        </mock:when>
+        <mock:when messageProcessor="http:request" doc:name="Mock Post MDR XRef">
+            <mock:with-attributes>
+                <mock:with-attribute name="config-ref" whereValue="MDR_Request_Configuration"/>
+            </mock:with-attributes>
+            <mock:then-return payload="{&quot;Success&quot;}"/>
+        </mock:when>
+        <set-payload value="{
+  &quot;name&quot;: &quot;DSOC-367&quot;,
+  &quot;projectSfdcId&quot;: &quot;a27c0000005RdLVAA0&quot;,
+  &quot;dataCenter&quot;: &quot;US&quot;,
+  &quot;adminEmail&quot;: &quot;lalarson@att.net&quot;,
+  &quot;ariaAcct&quot;: &quot;1839607&quot;,
+  &quot;ariaMPI&quot;: &quot;2628634&quot;,
+  &quot;dsoProjectId&quot;: &quot;5980 bb3ce782fc0019d164e3&quot;
+}" mimeType="application/json" doc:name="Set Payload"/>
+        <flow-ref name="dsoCreateFlow" doc:name="dsoCreateFlow"/>
+        <munit:assert-on-equals message="createProjectExtend Test failed" expectedValue="58e521834417550013dcd940" actualValue="#[flowVars.DSOCreateProjectResponse.id ]" doc:name="Assert Equals"/>
+    </munit:test>
+    <munit:test name="sys-dso-impl-test-suite-dsoUpdateFlowTest" description="Test">
+        <mock:when messageProcessor="http:request" doc:name="DSO Token Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="config-ref" whereValue="DSO_Auth_Request_Configuration"/>
+            </mock:with-attributes>
+            <mock:then-return payload="{&quot;access_token&quot;: &quot;eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.eyJzdWIiOiJzdmNfc2ZfaWFtX2xkYXBAYWRtaW5zeXMubXJsbC5jb20iLCJBVCI6InRlc3QiLCJVc2VyTmFtZSI6InN2Y19zZl9pYW1fbGRhcEBhZG1pbnN5cy5tcmxsLmNvbSIsIkZpcnN0TmFtZSI6IlRlc3QgVXNlciIsImdyb3VwIjoic2FsZXNmb3JjZV9zZXJ2aWNlIiwiZXhwIjoxNDkzMjY1NDQ5LCJzY29wZSI6W10sImNsaWVudF9pZCI6ImlhbV9hcGlfc2YiLCJpc3MiOiJpYW0ubWVycmlsbGNvcnAuY29tIiwiYXVkIjoiamF2ZWxpbm1jLmNvbSJ9.LhuIEpUU5C2kUKkMhb0H6XokKmCSgKKK8oILSSTYo_I&quot;,&quot;token_type&quot;: &quot;Bearer&quot;,&quot;expires_in&quot;: 36119}" mimeType="application/json"/>
+        </mock:when>
+        <mock:when messageProcessor="mule:sub-flow" doc:name="Mock parseAriaCurrentEntitlementAndStateForMPISub_Flow">
+            <mock:with-attributes>
+                <mock:with-attribute name="name" whereValue="#[matchContains('parseAriaCurrentEntitlementAndStateForMPISub_Flow')]"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('aria_State.json').asString()]" mimeType="application/java"/>
+        </mock:when>
+        <mock:when messageProcessor="http:request" doc:name="DSO Update Project Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="config-ref" whereValue="DSO_Request_Configuration"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('dso_proj.json').asString()]" mimeType="application/json"/>
+        </mock:when>
+        <set-payload value="{
+  &quot;name&quot;: &quot;DSOC-367&quot;,
+  &quot;projectSfdcId&quot;: &quot;a27c0000005RdLVAA0&quot;,
+  &quot;dataCenter&quot;: &quot;US&quot;,
+  &quot;adminEmail&quot;: &quot;lalarson@att.net&quot;,
+  &quot;ariaAcct&quot;: &quot;1839607&quot;,
+  &quot;ariaMPI&quot;: &quot;2628634&quot;,
+  &quot;dsoProjectId&quot;: &quot;5980 bb3ce782fc0019d164e3&quot;
+}
+" mimeType="application/json" doc:name="Set Payload"/>
+        <flow-ref name="dsoUpdateFlow" doc:name="dsoUpdateFlow"/>
+        <munit:assert-not-null message="Error Updating" doc:name="Assert Not Null Payload"/>
+    </munit:test>
+</mule>

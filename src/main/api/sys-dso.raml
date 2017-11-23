@@ -1,0 +1,122 @@
+#%RAML 1.0
+title: sys-dso
+version: 1.0
+baseUri: http://127.0.0.1/api/{version}
+#baseUri: https://mocksvc.mulesoft.com/mocks/fc200216-5c5c-4c32-9f75-c624617fe62a/api/{version}
+documentation: 
+  - title: Home
+    content: | 
+      This is the system layer in front of DSO and will be responsible calling the raw DSO API.
+description: | 
+      This API will be provide easy access to the **DSO** API and be responsible for breaking down the responses to usable items for the proc layer, as well as reliably posting objects into **DSO**
+protocols: HTTPS
+mediaType: application/json
+/dso:
+  /healthcheck:
+    displayName: DSO-Health-Check
+    description: This Endpoint is Utilized for Ensuring a Connection to the DSO API
+    get:
+      responses: 
+        200:
+          body: 
+            application/json:
+              example: {Status: "DSO Connection is Available"}
+        400:
+          body: 
+            application/json:
+              example: {"Status": "DSO Connection Not Available"}
+        500:
+          body: 
+            application/json:
+              example: {Status: "Internal Server Error"}
+  /auth:
+    displayName: DSO-Auth
+    description: Call to get access token for DSO
+    get:
+      responses: 
+        200:
+          body: 
+            application/json:
+              example: {"access_token": "eyJhbGciOiJZCI6IjEifQ.eyJzdWIiOiJzdyWxpbm1jLmNvbSJ9.psjvt7jJfh_-KhT3KG9wjy9Sis1H69omsf2as", "token_type": "Bearer", "expires_in": 36119}
+        400:
+          body: 
+            application/json:
+              example: {"Status": "DSO Connection Not Available"}
+        500:
+          body: 
+            application/json:
+              example: {Status: "Internal Server Error"}
+  /daily-usage:
+    displayName: DSO-Daily-Usage-Based on-Date
+    description: Call to get usage data since last modified date (daily) from DSO
+    get:
+      responses: 
+        200:
+          body: 
+            application/json:
+              example: !include examples/dso_usage.json
+        400:
+          body: 
+            application/json:
+              example: {"Status": "DSO Connection Not Available"}
+        500:
+          body: 
+            application/json:
+              example: {Status: "Internal Server Error"}
+  /monthly-usage:
+    displayName: DSO-Monthly-Usage-Based on-Date
+    description: Call to get usage data since last modified date (monthly) from DSO
+    get:
+      responses: 
+        200:
+          body: 
+            application/json:
+              example: !include examples/dso_usage.json
+        400:
+          body: 
+            application/json:
+              example: {"Status": "DSO Connection Not Available"}
+        500:
+          body: 
+            application/json:
+              example: {Status: "Internal Server Error"}
+  /create:
+    displayName: Create-In-DSO
+    description: Call to create a new instance in DSO
+    post:
+      body: 
+        application/json:
+          example: {}
+      responses: 
+        200:
+          body: 
+            application/json:
+              example: {"Success": "OK"}
+        400:
+          body: 
+            application/json:
+              example: {"Status": "DSO Connection Not Available"}
+        500:
+          body: 
+            application/json:
+              example: {Status: "Internal Server Error"}
+  /update:
+    displayName: Update-In-DSO
+    description: Call to update a project in DSO
+    post:
+      body: 
+        application/json:
+          example: {}
+      responses: 
+        200:
+          body: 
+            application/json:
+              example: !include examples/update_response.json
+        400:
+          body: 
+            application/json:
+              example: {"Status": "DSO Connection Not Available"}
+        500:
+          body: 
+            application/json:
+              example: {Status: "Internal Server Error"}

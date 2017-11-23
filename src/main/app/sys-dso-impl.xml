@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+        <flow name="dsoCreateFlow">
+        <logger level="INFO" doc:name="Logger" message="flow = start = dsoCreateFlow"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-variable variableName="ariaValues"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	ariaAcct: payload.ariaAcct,
+	ariaMPI: payload.ariaMPI
+}]]></dw:set-variable>
+            <dw:set-variable variableName="theProject"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	name: payload.name,
+	projectSfdcId: payload.projectSfdcId,
+	dataCenter: payload.dataCenter,
+	adminEmail: payload.adminEmail
+}]]></dw:set-variable>
+        </dw:transform-message>
+        <flow-ref name="dsoAuthFlow" doc:name="dsoAuthFlow"/>
+        <logger level="INFO" doc:name="Logger"/>
+        <enricher target="variable:ariaAcctDetails" doc:name="Message Enricher">
+            <flow-ref name="getAriaAcctDetailsFlow" doc:name="getAriaAcctDetailsFlow"/>
+        </enricher>
+        <enricher target="variable:ariaResponse" doc:name="Message Enricher">
+            <flow-ref name="parseAriaCurrentEntitlementAndStateForMPISub_Flow" doc:name="parseAriaCurrentEntitlementAndStateForMPISub_Flow"/>
+        </enricher>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+  info: {
+    name: flowVars.theProject.name,
+    description: flowVars.theProject.name,
+    externalId: flowVars.theProject.projectSfdcId,
+    dataCenter: flowVars.theProject.dataCenter,
+    productCode: "MANDA",
+	emailId: '${default.email.address}' when flowVars.theProject.adminEmail == null otherwise flowVars.theProject.adminEmail,
+    scheduledActivationDate: 0,
+    state: "PREP" when flowVars.ariaResponse.state == "Preparation" otherwise "ACTIVE" when flowVars.ariaResponse.state == "Active" otherwise "HIBERNATION" when flowVars.ariaResponse.state == "Hibernation" otherwise "SUSPENDED" when flowVars.ariaResponse.state == "Suspended" otherwise "CLOSED" when flowVars.ariaResponse.state == "Pending Close" otherwise "CLOSED" when flowVars.ariaResponse.state == "Closed" otherwise "UNKNOWN",
+    demo: false
+  },
+  deleted: false,
+  configurations: null,
+  entitlements: (flowVars.ariaResponse.entitlements default '' splitBy ";") map  {
+	"enabled": true,
+	"entitlementCode": trim $
+  }
+} ]]></dw:set-payload>
+        </dw:transform-message>
+        <set-session-variable variableName="payloadBeforeUntilSuccess" value="#[payload]" doc:name="Session Variable"/>
+
+        <until-successful maxRetries="${dso.http.max.retries}" millisBetweenRetries="${dso.http.milliSecondsBetweenRetries}" failureExpression="exception!=null &amp;&amp; (exception.causedBy(java.io.IOException) || exception.causedBy(java.net.ConnectException)  || exception.causedBy(java.net.SocketTimeoutException))" synchronous="true" doc:name="Until Successful">
+            <http:request config-ref="DSO_Request_Configuration" path="${dso.create.api.path}" method="POST" doc:name="DSO_CreateProject">
+                <http:request-builder>
+                    <http:header headerName="Content-Type" value="application/json"/>
+                    <http:header headerName="Authorization" value="Bearer #[flowVars.dsoToken]"/>
+                </http:request-builder>
+            </http:request>
+        </until-successful>
+        <logger level="DEBUG" doc:name="Logger" message="Payload after create dso call:  #[message.payloadAs(java.lang.String)]"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-variable variableName="DSOCreateProjectResponse"><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-variable>
+        </dw:transform-message>
+        <flow-ref name="createProjForDsoSub_Flow" doc:name="createProjForDsoSub_Flow"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+[{
+  Id: flowVars.theProject.projectSfdcId,
+  DatasiteOne_ProjectID__c: flowVars.DSOCreateProjectResponse.id
+}]]]></dw:set-payload>
+        </dw:transform-message>
+        <sfdc:update config-ref="Salesforce_Basic_Authentication" type="DatasiteOne_Project__c" doc:name="Salesforce">
+            <sfdc:objects ref="#[payload]"/>
+        </sfdc:update>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="flow = end = dsoCreateFlow" level="INFO" doc:name="Logger"/>
+
+    </flow>
+    <sub-flow name="createProjForDsoSub_Flow">
+        <logger message="flow = start = createProjForDsoSub_Flow" level="INFO" doc:name="Logger"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+  entity_type_key: "PROJ",
+  on_id_type_key: "SF_PROJ",
+  on_id_value: flowVars.theProject.projectSfdcId,
+
+  add_id_type_key: "DS1_PROJ",
+  add_id_value: flowVars.DSOCreateProjectResponse.id
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <set-session-variable variableName="payloadBeforeUntilSuccess" value="#[payload]" doc:name="Session Variable"/>
+
+        <until-successful maxRetries="${mdr.http.max.retries}" millisBetweenRetries="${mdr.http.milliSecondsBetweenRetries}" failureExpression="exception!=null &amp;&amp; (exception.causedBy(java.io.IOException) || exception.causedBy(java.net.ConnectException)  || exception.causedBy(java.net.SocketTimeoutException))" synchronous="true" doc:name="Until Successful">
+            <http:request config-ref="MDR_Request_Configuration" path="${mdr.crossref.path}" method="POST" doc:name="Post MDR XRef"/>
+        </until-successful>
+        <logger message="flow = end = createProjForDsoSub_Flow" level="INFO" doc:name="Logger"/>
+    </sub-flow>
+    <sub-flow name="parseAriaCurrentEntitlementAndStateForMPISub_Flow">
+        <logger message="flow = start = parseAriaCurrentEntitlementAndStateForMPISub_Flow" level="INFO" doc:name="Logger"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+%namespace env http://schemas.xmlsoap.org/soap/envelope/
+%namespace aria urn:client:api:wsdl:document/literal_wrapped:vers:11.0:aria_complete_m_api
+
+%var responseElement = read(flowVars.ariaAcctDetails, 'application/xml').Envelope.Body.get_acct_details_all_mResponseElement
+
+%var masterPlan = responseElement.*master_plans_info[?( $.client_master_plan_instance_id == flowVars.ariaValues.ariaMPI )][0]
+%var entitlements = masterPlan.*mp_plan_inst_fields[?( $.plan_instance_field_name == 'CURRENT_ENTITLEMENT' )][0].plan_instance_field_value
+%var projectPhase = masterPlan.*mp_plan_inst_fields[?( $.plan_instance_field_name == 'PROJECT_PHASE' )][0].plan_instance_field_value
+---
+{
+  errorMessage: responseElement.error_msg,
+  errorCode: responseElement.error_code,
+
+  entitlements: entitlements,
+  state: projectPhase
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="flow = end = parseAriaCurrentEntitlementAndStateForMPISub_Flow" level="INFO" doc:name="Logger"/>
+    </sub-flow>
+    <sub-flow name="getAriaAcctDetailsFlow">
+        <logger message="flow = start = getAriaAcctDetailsFlow" level="INFO" doc:name="Logger"/>
+        <dw:transform-message doc:name="Prepare SOAP Payload for GetAcctDetails">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+%namespace soap http://schemas.xmlsoap.org/soap/envelope/
+---
+{
+  soap#Envelope: {
+    soap#Header: {},
+    soap#Body: {
+      get_acct_details_all_m @(xmlns: p('aria.namespace')): {
+        client_no: p('aria.client_no'),
+        auth_key: p('aria.auth_key'),
+
+        acct_no: flowVars.ariaValues.ariaAcct,
+
+        include_master_plans: 1,
+        include_supp_plans: 1,
+        include_billing_groups: 1
+      }
+    }
+  }
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <set-session-variable variableName="payloadBeforeUntilSuccess" value="#[payload]" doc:name="Session Variable"/>
+        <until-successful maxRetries="${aria.http.max.retries}" millisBetweenRetries="${aria.http.milliSecondsBetweenRetries}" failureExpression="exception!=null &amp;&amp; (exception.causedBy(java.io.IOException) || exception.causedBy(java.net.ConnectException)  || exception.causedBy(java.net.SocketTimeoutException))" synchronous="true" doc:name="Until Successful">
+            <http:request config-ref="Aria_Request_Configuration" path="${aria.path}" method="POST" doc:name="GetAccountDetailsFromAria">
+                <http:request-builder>
+                    <http:header headerName="SOAPAction" value="&quot;get_acct_details_all_m&quot;"/>
+                </http:request-builder>
+            </http:request>
+        </until-successful>
+        <logger message="flow = end = getAriaAcctDetailsFlow" level="INFO" doc:name="Logger"/>
+    </sub-flow>
+    <flow name="dsoUpdateFlow">
+        <logger level="INFO" doc:name="Logger" message="flow = start = dsoUpdateFlow"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-variable variableName="theProject"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	name: payload.name,
+	dataCenter: payload.dataCenter,
+	adminEmail: payload.adminEmail,
+	projectSfdcId: payload.projectSfdcId
+}]]></dw:set-variable>
+            <dw:set-variable variableName="ariaValues"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	ariaAcct: payload.ariaAcct,
+	ariaMPI: payload.ariaMPI
+}]]></dw:set-variable>
+            <dw:set-variable variableName="dsoProjectId"><![CDATA[%dw 1.0
+%output application/java
+---
+payload.dsoProjectId]]></dw:set-variable>
+        </dw:transform-message>
+        <flow-ref name="dsoAuthFlow" doc:name="dsoAuthFlow"/>
+        <enricher target="variable:ariaAcctDetails" doc:name="Message Enricher">
+            <flow-ref name="getAriaAcctDetailsFlow" doc:name="getAriaAcctDetailsFlow"/>
+        </enricher>
+        <enricher target="variable:ariaResponse" doc:name="Message Enricher">
+            <flow-ref name="parseAriaCurrentEntitlementAndStateForMPISub_Flow" doc:name="parseAriaCurrentEntitlementAndStateForMPISub_Flow"/>
+        </enricher>
+        <dw:transform-message doc:name="Prepare Payload For Dso Entitlement Update">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+(flowVars.ariaResponse.entitlements default '' splitBy ";") map {
+  enabled: true,
+  entitlementCode: trim $
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <set-session-variable variableName="payloadBeforeUntilSuccess" value="#[payload]" doc:name="Session Variable"/>
+
+        <until-successful maxRetries="${dso.http.max.retries}" millisBetweenRetries="${dso.http.milliSecondsBetweenRetries}" failureExpression="exception!=null &amp;&amp; (exception.causedBy(java.io.IOException) || exception.causedBy(java.net.ConnectException)  || exception.causedBy(java.net.SocketTimeoutException))" synchronous="true" doc:name="Until Successful">
+            <http:request config-ref="DSO_Request_Configuration" path="${dso.create.api.path}/{projectId}/entitlements" method="PUT" doc:name="DSO_UpdateProject Entitlement">
+                <http:request-builder>
+                    <http:uri-param paramName="projectId" value="#[flowVars.dsoProjectId]"/>
+                    <http:header headerName="Content-Type" value="application/json"/>
+                    <http:header headerName="Authorization" value="Bearer #[flowVars.dsoToken]"/>
+                </http:request-builder>
+            </http:request>
+        </until-successful>
+        <logger level="DEBUG" doc:name="Logger" message="payload after dso entitlement Update: #[message.payloadAs(java.lang.String)]"/>
+        <dw:transform-message doc:name="Prepare Payload For Dso Status Update">
+            <dw:set-payload><![CDATA[%dw 1.0
+
+%output application/json
+---
+{
+  dataCenter: flowVars.theProject.dataCenter,
+  demo: true,
+
+  description: flowVars.theProject.name,
+  emailId: '${default.email.address}' when flowVars.theProject.adminEmail == null otherwise flowVars.theProject.adminEmail,
+  externalId: flowVars.theProject.projectSfdcId,
+  name: flowVars.theProject.name,
+  productCode: "MANDA",
+  scheduledActivationDate: 0,
+  state: "PREP" when flowVars.ariaResponse.state == "Preparation" otherwise "ACTIVE" when flowVars.ariaResponse.state == "Active" otherwise "HIBERNATION" when flowVars.ariaResponse.state == "Hibernation" otherwise "SUSPENDED" when flowVars.ariaResponse.state == "Suspended" otherwise "CLOSED" when flowVars.ariaResponse.state == "Pending Close" otherwise "CLOSED" when flowVars.ariaResponse.state == "Closed" otherwise "UNKNOWN"
+}
+ ]]></dw:set-payload>
+        </dw:transform-message>
+        <set-session-variable variableName="payloadBeforeUntilSuccess" value="#[payload]" doc:name="Session Variable"/>
+
+        <until-successful maxRetries="${dso.http.max.retries}" millisBetweenRetries="${dso.http.milliSecondsBetweenRetries}" failureExpression="exception!=null &amp;&amp; (exception.causedBy(java.io.IOException) || exception.causedBy(java.net.ConnectException)  || exception.causedBy(java.net.SocketTimeoutException))" synchronous="true" doc:name="Until Successful">
+            <http:request config-ref="DSO_Request_Configuration" path="${dso.create.api.path}/{projectId}/info" method="PUT" doc:name="DSO_UpdateProject State">
+                <http:request-builder>
+                    <http:uri-param paramName="projectId" value="#[flowVars.dsoProjectId]"/>
+                    <http:header headerName="Content-Type" value="application/json"/>
+                    <http:header headerName="Authorization" value="Bearer #[flowVars.dsoToken]"/>
+                </http:request-builder>
+            </http:request>
+        </until-successful>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <logger level="INFO" doc:name="Logger" message="flow = end = dsoUpdateFlow"/>
+
+    </flow>
+</mule>

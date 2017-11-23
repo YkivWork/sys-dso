@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:cluster="http://www.mulesoft.org/schema/mule/ee/cluster" xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:secure-property-placeholder="http://www.mulesoft.org/schema/mule/secure-property-placeholder" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/secure-property-placeholder http://www.mulesoft.org/schema/mule/secure-property-placeholder/current/mule-secure-property-placeholder.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd">
+    <http:listener-config name="api-HTTP_Listener_Configuration" host="0.0.0.0" port="${https.port}" doc:name="HTTP Listener Configuration" protocol="HTTPS">
+        <tls:context>
+            <tls:key-store path="sslkeys/${env}-keystore.jks" keyPassword="password" password="password"/>
+        </tls:context>
+    </http:listener-config>
+	<secure-property-placeholder:config name="Secure_Property_Placeholder" key="${runtime.key}" location="properties/common.properties,properties/${env}.properties" doc:name="Secure Property Placeholder"/>
+    <http:request-config name="DSO_Auth_Request_Configuration" protocol="HTTPS" host="${dso.auth.host}" port="${dso.auth.port}" doc:name="HTTP Request Configuration">
+        <tls:context>
+            <tls:key-store path="sslkeys/${env}-keystore.jks" keyPassword="password" password="password"/>
+        </tls:context>
+    </http:request-config>
+    <http:request-config name="DSO_Request_Configuration" protocol="HTTPS" host="${dso.api.host}" port="${dso.api.port}" responseTimeout="120000" doc:name="HTTP Request Configuration">
+        <tls:context>
+            <tls:key-store path="sslkeys/${env}-keystore.jks" keyPassword="password" password="password"/>
+        </tls:context>
+    </http:request-config>
+    <http:request-config name="MDR_Request_Configuration" host="${mdr.system.host}" port="${mdr.system.port}" responseTimeout="120000" doc:name="HTTP Request Configuration">
+    </http:request-config>
+    <sfdc:config name="Salesforce_Basic_Authentication" username="${sfdc.username}" password="${sfdc.password}" securityToken="${sfdc.securityToken}" url="${sfdc.url}" doc:name="Salesforce: Basic Authentication" doc:description="SFDC Instance">
+        <reconnect-forever blocking="false" frequency="5000"/>
+    </sfdc:config>
+    <http:request-config name="Aria_Request_Configuration" protocol="HTTPS" host="${aria.host}" port="${aria.port}" doc:name="HTTP Request Configuration">
+        <tls:context>
+            <tls:key-store path="sslkeys/${env}-keystore.jks" keyPassword="password" password="password"/>
+        </tls:context>
+    </http:request-config>
+    <configuration defaultExceptionStrategy-ref="global-exception-strategy" doc:name="Configuration">
+        <http:config useTransportForUris="false"/>
+    </configuration>
+  
+</mule>

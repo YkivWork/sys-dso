@@ -1,0 +1,167 @@
+[
+  {
+    "totalHostedPages": 0,
+    "totalHostedMB": 0,
+    "billingType": "docProcessed",
+    "pagesAdded": 0,
+    "megabytesAdded": 0,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "58f8c5fc5dea93000fb8fff0"
+  },
+  {
+    "totalHostedPages": 0,
+    "totalHostedMB": 824320,
+    "billingType": "downloadOnly",
+    "pagesAdded": 0,
+    "megabytesAdded": 94208,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "58f8c5fc5dea93000fb8fff0"
+  },
+  {
+    "totalHostedPages": 103643,
+    "totalHostedMB": 1980288762,
+    "billingType": "docProcessed",
+    "pagesAdded": 3909,
+    "megabytesAdded": 59931174,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "58efe3c03e3fef000ec78c4e"
+  },
+  {
+    "totalHostedPages": 0,
+    "totalHostedMB": 570144,
+    "billingType": "downloadOnly",
+    "pagesAdded": 0,
+    "megabytesAdded": 570144,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "58efe3c03e3fef000ec78c4e"
+  },
+  {
+    "totalHostedPages": 5636,
+    "totalHostedMB": 199486026,
+    "billingType": "docProcessed",
+    "pagesAdded": 184,
+    "megabytesAdded": 4897368,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "58c9593ace4578000e81ff82"
+  },
+  {
+    "totalHostedPages": 188,
+    "totalHostedMB": 4933564,
+    "billingType": "docProcessed",
+    "pagesAdded": 0,
+    "megabytesAdded": 0,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "591ab76efdf024001016cf20"
+  },
+  {
+    "totalHostedPages": 0,
+    "totalHostedMB": 0,
+    "billingType": "downloadOnly",
+    "pagesAdded": 0,
+    "megabytesAdded": 0,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "591ab76efdf024001016cf20"
+  },
+  {
+    "totalHostedPages": 188,
+    "totalHostedMB": 4933544,
+    "billingType": "docProcessed",
+    "pagesAdded": 0,
+    "megabytesAdded": 0,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "591ac57f1cc0a8001769fee7"
+  },
+  {
+    "totalHostedPages": 0,
+    "totalHostedMB": 0,
+    "billingType": "downloadOnly",
+    "pagesAdded": 0,
+    "megabytesAdded": 0,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "591ac57f1cc0a8001769fee7"
+  },
+  {
+    "totalHostedPages": 188,
+    "totalHostedMB": 4933596,
+    "billingType": "docProcessed",
+    "pagesAdded": 0,
+    "megabytesAdded": 0,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "591ad38efdf024001016cfbf"
+  },
+  {
+    "totalHostedPages": 0,
+    "totalHostedMB": 0,
+    "billingType": "downloadOnly",
+    "pagesAdded": 0,
+    "megabytesAdded": 0,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "591ad38efdf024001016cfbf"
+  },
+  {
+    "totalHostedPages": 188,
+    "totalHostedMB": 4933460,
+    "billingType": "docProcessed",
+    "pagesAdded": 0,
+    "megabytesAdded": 0,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "591ae19e1cc0a8001769ff8c"
+  },
+  {
+    "totalHostedPages": 0,
+    "totalHostedMB": 0,
+    "billingType": "downloadOnly",
+    "pagesAdded": 0,
+    "megabytesAdded": 0,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "591ae19e1cc0a8001769ff8c"
+  },
+  {
+    "totalHostedPages": 188,
+    "totalHostedMB": 4943604,
+    "billingType": "docProcessed",
+    "pagesAdded": 0,
+    "megabytesAdded": 0,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "591aefaffdf024001016d054"
+  },
+  {
+    "totalHostedPages": 156,
+    "totalHostedMB": 3418128,
+    "billingType": "docProcessed",
+    "pagesAdded": 0,
+    "megabytesAdded": 0,
+    "recordDate": "2017-08-08T20:47:57.036Z",
+    "periodStart": "2017-05-17T00:00Z[UTC]",
+    "periodEnd": "2017-05-17T23:59:59.999999999Z[UTC]",
+    "projectId": "591233bcab01e200143a93f2"
+  }
+]
